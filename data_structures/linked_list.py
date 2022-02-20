@@ -1,15 +1,7 @@
 from copy import copy
-from dataclasses import dataclass
-from typing import Iterator, List, TypeVar, Generic, Optional
+from typing import Iterator, List, Generic, Optional
 
-
-T = TypeVar("T")
-
-
-@dataclass
-class Node(Generic[T]):
-    value: T
-    next_node: Optional["Node[T]"]
+from .utils import T, Node
 
 
 class LinkedList(Generic[T]):

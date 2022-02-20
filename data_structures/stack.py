@@ -1,13 +1,6 @@
-from typing import Generic, TypeVar, Optional
-from dataclasses import dataclass
+from typing import Generic
 
-T = TypeVar("T")
-
-
-@dataclass
-class Node(Generic[T]):
-    value: T
-    next_node: Optional["Node[T]"]
+from .utils import T, Node
 
 
 class Stack(Generic[T]):
