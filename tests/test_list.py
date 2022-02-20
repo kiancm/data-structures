@@ -41,7 +41,6 @@ class ListTest(ABC):
         del self.list[0]
         self.assertEqual(0, len(self.list))
 
-
     def test_del_first(self):
         self.list.append(1)
         self.list.append(2)
@@ -77,6 +76,35 @@ class ListTest(ABC):
         del self.list[0]
         with self.assertRaises(IndexError):
             del self.list[0]
+
+    def test_append_all(self):
+        self.list.append_all([])
+        self.assertEqual(0, len(self.list))
+
+        self.list.append_all([1, 2, 3])
+        self.assertEqual(3, len(self.list))
+
+    def test_prepend_all(self):
+        self.list.prepend_all([])
+        self.assertEqual(0, len(self.list))
+
+        self.list.prepend_all([1, 2, 3])
+        self.assertEqual(3, len(self.list))
+
+    def test_set_item(self):
+        with self.assertRaises(IndexError):
+            self.list[0] = 1
+        self.list.append(1)
+        self.list[0] = 2
+        self.assertEqual(2, self.list[0])
+        with self.assertRaises(IndexError):
+            self.list[1] = 3
+
+    def test_iter(self):
+        self.list.append_all([1, 2, 3, 4])
+        values = [x for x in self.list]
+        self.assertEqual([1, 2, 3, 4], values)
+
 
 class LinkedListTest(ListTest, unittest.TestCase):
     def get_list(self) -> List:

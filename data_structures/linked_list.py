@@ -1,5 +1,4 @@
-from copy import copy
-from typing import Iterator, List, Generic, Optional
+from typing import Iterable, Iterator, List, Generic, Optional
 
 from .utils import T, Node
 
@@ -56,10 +55,24 @@ class LinkedList(Generic[T]):
             node.next_node = Node(x, None)
         self.size += 1
 
-    def __getitem__(self, i: int) -> T:
+    def append_all(self, values: Iterable[T]) -> None:
+        for value in values:
+            self.append(value)
+
+    def prepend_all(self, values: Iterable[T]) -> None:
+        for value in values:
+            self.prepend(value)
+
+    def _get_node(self, i: int) -> Node[T]:
         if i < 0 or i >= self.size:
             raise IndexError("index out of bounds")
-        head = copy(self.head)
+        head = self.head
         for _ in range(i):
             head = head.next_node
-        return head.value
+        return head
+
+    def __getitem__(self, i: int) -> T:
+        return self._get_node(i).value
+
+    def __setitem__(self, i: int, value: T) -> None:
+        self._get_node(i).value = value
