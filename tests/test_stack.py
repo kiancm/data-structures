@@ -3,6 +3,7 @@ from abc import ABC, abstractmethod
 
 from data_structures.stack import Stack, LinkedStack, HandRolledStack
 
+
 class StackTest(ABC):
     @abstractmethod
     def get_stack(self) -> Stack:
@@ -51,6 +52,7 @@ class StackTest(ABC):
         self.stack.pop()
         self.stack.pop()
         self.assertEqual(0, len(self.stack))
+
 
 class LinkedStackTest(StackTest, unittest.TestCase):
     def get_stack(self) -> Stack:

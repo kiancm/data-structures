@@ -3,6 +3,7 @@ from typing import Generic, Protocol
 from .linked_list import LinkedList
 from .utils import T, Node
 
+
 class Stack(Protocol[T]):
     def __len__(self) -> int:
         ...

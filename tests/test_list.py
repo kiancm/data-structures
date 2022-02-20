@@ -4,6 +4,7 @@ from abc import ABC
 from data_structures.linked_list import LinkedList
 from data_structures.list import List
 
+
 class ListTest(ABC):
     def get_list(self) -> List:
         pass
