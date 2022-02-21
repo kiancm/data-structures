@@ -1,9 +1,10 @@
-from typing import Iterable, Iterator, List, Generic, Optional
+from typing import Iterable, Iterator, List, Optional
 
+from .list import List
 from .utils import T, Node
 
 
-class LinkedList(Generic[T]):
+class LinkedList(List[T]):
     def __init__(self, init: Optional[List[T]] = None) -> None:
         self.head: Optional[Node[T]] = None
         self.size: int = 0
