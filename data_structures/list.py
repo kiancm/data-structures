@@ -1,4 +1,5 @@
 from typing import Iterable, Iterator, Protocol
+
 from .utils import T
 
 
@@ -10,6 +11,9 @@ class List(Protocol[T]):
         ...
 
     def __setitem__(self, i: int, value: T) -> None:
+        ...
+
+    def __delitem__(self, i: int) -> None:
         ...
 
     def __iter__(self) -> Iterator[T]:

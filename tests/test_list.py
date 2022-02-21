@@ -1,6 +1,7 @@
 import unittest
 from abc import ABC
 
+from data_structures.doubly_linked_list import DoublyLinkedList
 from data_structures.linked_list import LinkedList
 from data_structures.list import List
 
@@ -110,3 +111,8 @@ class ListTest(ABC):
 class LinkedListTest(ListTest, unittest.TestCase):
     def get_list(self) -> List:
         return LinkedList()
+
+
+class DoublyLinkedListTest(ListTest, unittest.TestCase):
+    def get_list(self) -> List:
+        return DoublyLinkedList()
