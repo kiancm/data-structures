@@ -27,14 +27,12 @@ class LinkedList(List[T]):
         if i == 0:
             self.head = self.head.next_node
         else:
-            head = self.head
-            for _ in range(i - 1):
-                head = head.next_node
-            match head:
-                case Node(_, Node(_, next_node)):
-                    head.next_node = next_node
-                case Node(_, None):
-                    raise IndexError(f"index out of bounds: {i}")
+            node = self._get_node(i - 1)
+            match node:
+                case None | Node(_, None):
+                    raise IndexError("index out of bounds")
+                case Node(_, Node(_, next_next_node)):
+                    node.next_node = next_next_node
         self.size -= 1
 
     def __repr__(self):
