@@ -13,16 +13,22 @@ class Queue(Generic[T]):
         return f"{self.__class__.__qualname__}({values})"
 
     def push(self, value: T) -> None:
+        """O(1)"""
+
         self.values.append(value)
         self.size += 1
 
     def peek(self) -> T:
+        """O(1)"""
+
         try:
             return self.values[0]
         except IndexError:
             raise IndexError("Can't peek an empty queue")
 
     def pop(self) -> T:
+        """O(1)"""
+
         value = self.values[0]
         del self.values[0]
         self.size -= 1

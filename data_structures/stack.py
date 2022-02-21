@@ -9,12 +9,15 @@ class Stack(Protocol[T]):
         ...
 
     def push(self, x) -> None:
+        """O(1)"""
         ...
 
     def peek(self) -> T:
+        """O(1)"""
         ...
 
     def pop(self) -> T:
+        """O(1)"""
         ...
 
 
