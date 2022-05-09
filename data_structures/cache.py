@@ -13,7 +13,7 @@ class Cache(Protocol[K, V]):
     capacity: int
 
     @abstractmethod
-    def get(self, key: K, default: Optional[V] = None) -> Optional[V]:
+    def get(self, key: K) -> Optional[V]:
         ...
 
     @abstractmethod
@@ -38,8 +38,8 @@ class LRUCache(Cache[K, V]):
     queue: List[CacheValue[K]] = field(default_factory=list)
     table: Dict[K, V] = field(default_factory=dict)
 
-    def get(self, key: K, default: Optional[V] = None) -> Optional[V]:
-        value = self.table.get(key, default)
+    def get(self, key: K) -> Optional[V]:
+        value = self.table.get(key)
 
         if value is not None:
             for cvalue in self.queue:
