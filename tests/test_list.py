@@ -1,8 +1,8 @@
 import unittest
 from abc import ABC
 
-from data_structures.doubly_linked_list import DoublyLinkedList
-from data_structures.linked_list import LinkedList
+from data_structures.list.doubly_linked_list import DoublyLinkedList
+from data_structures.list.linked_list import LinkedList
 from data_structures.list import List
 
 

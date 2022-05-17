@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from typing import Callable, Dict, Generic, Optional, Protocol, TypeVar, List
 
-from .utils import T
+from ..utils import T
 
 
 K = TypeVar("K")

@@ -1,24 +1,6 @@
-from typing import Generic, Protocol
+from typing import Generic
 
-from .linked_list import LinkedList
-from .utils import T, Node
-
-
-class Stack(Protocol[T]):
-    def __len__(self) -> int:
-        ...
-
-    def push(self, x) -> None:
-        """O(1)"""
-        ...
-
-    def peek(self) -> T:
-        """O(1)"""
-        ...
-
-    def pop(self) -> T:
-        """O(1)"""
-        ...
+from utils import T, Node
 
 
 class HandRolledStack(Generic[T]):
@@ -50,24 +32,4 @@ class HandRolledStack(Generic[T]):
         value = self.head.value
         self.head = self.head.next_node
         self.size -= 1
-        return value
-
-
-class LinkedStack(Generic[T]):
-    def __init__(self) -> None:
-        self.values = LinkedList()
-
-    def __len__(self) -> int:
-        return len(self.values)
-
-    def push(self, x) -> None:
-        self.values.prepend(x)
-
-    def peek(self) -> T:
-        return self.values[0]
-
-    def pop(self) -> T:
-        value = self.peek()
-        del self.values[0]
-
         return value

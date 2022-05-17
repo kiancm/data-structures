@@ -1,7 +1,7 @@
 from typing import Iterable, Iterator, Optional
 
 from .list import List
-from .utils import T, Node
+from ..utils import T, Node
 
 
 class LinkedList(List[T]):

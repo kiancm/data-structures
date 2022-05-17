@@ -1,6 +1,6 @@
 import unittest
 
-from data_structures.cache import Cache, LRUCache
+from data_structures.cache.cache import Cache, LRUCache
 
 
 class LRUCacheTest(unittest.TestCase):

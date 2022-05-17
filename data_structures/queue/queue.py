@@ -1,7 +1,7 @@
 from typing import Generic
 
-from .doubly_linked_list import DoublyLinkedList
-from .utils import T
+from ..list.doubly_linked_list import DoublyLinkedList
+from ..utils import T
 
 class Queue(Generic[T]):
     def __init__(self) -> None:

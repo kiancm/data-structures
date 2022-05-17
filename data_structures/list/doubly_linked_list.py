@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from typing import Generic, Iterable, Iterator, Optional
 
 from .list import List
-from .utils import T
+from ..utils import T
 
 @dataclass
 class Node(Generic[T]):
