@@ -27,13 +27,11 @@ class DoublyLinkedList(List[T]):
 
     def __delitem__(self, i: int) -> None:
         node = self._get_node(i)
-        if node is None:
-            raise IndexError("Can't delete from an empty list")
         match node:
             case Node(_, None, None):
                 self.first = self.last = None
             case Node(_, None, next_node):
-                self.first = next_node
+                self.first = Node(next_node.value, None, next_node.next_node)
             case Node(_, prev_node, None):
                 self.last = prev_node
             case Node(_, prev_node, next_node):
@@ -44,19 +42,27 @@ class DoublyLinkedList(List[T]):
     def __repr__(self):
         return f"{self.__class__.__qualname__}({list(self.__iter__())})"
 
-    def _get_node(self, i: int) -> Optional[Node[T]]:
-        if i < 0 or i >= self.size:
-            raise IndexError("index out of bounds")
-        node = self.first
-        for _ in range(i):
-            node = node.next_node
-        return node
+    def _get_node(self, index: int) -> Node[T]:
+        negative = index < 0
+        normalized_index = -(index + 1) if negative else index
+        for i, node in enumerate(self._node_iter(reversed=negative)):
+            if i == normalized_index:
+                return node
+        raise IndexError(f"index out of bounds: {index}")
+
+    def _node_iter(self, reversed=False) -> Iterator[Node[T]]:
+        node = self.last if reversed else self.first
+        while node is not None:
+            yield node
+            node = node.prev_node if reversed else node.next_node
+
+    def __reversed__(self) -> Iterator[T]:
+        for node in self._node_iter(reversed=True):
+            yield node.value
 
     def __iter__(self) -> Iterator[T]:
-        node = self.first
-        while node is not None:
+        for node in self._node_iter():
             yield node.value
-            node = node.next_node
 
     def append(self, value: T) -> None:
         if self.last is None:

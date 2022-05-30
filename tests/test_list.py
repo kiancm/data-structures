@@ -34,7 +34,7 @@ class ListTest(ABC):
         with self.assertRaises(IndexError):
             self.list[1]
         with self.assertRaises(IndexError):
-            self.list[-1]
+            self.list[2]
 
     def test_len(self):
         self.assertEqual(0, len(self.list))
