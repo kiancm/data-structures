@@ -1,7 +1,8 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from typing import Callable, Dict, Generic, Optional, Protocol, TypeVar, List
+from typing import Callable, Dict, Generic, Optional, Protocol, TypeVar
 
+from ..list.doubly_linked_list import DoublyLinkedList, Node
 from ..utils import T
 
 
@@ -25,41 +26,43 @@ class Cache(Protocol[K, V]):
 
 
 @dataclass
-class CacheValue(Generic[T]):
-    value: T
-    priority: int
-
+class Pair(Generic[K, V]):
+    key: K
+    value: V
 
 
 @dataclass
 class LRUCache(Cache[K, V]):
     capacity: int
     size: int = 0
-    queue: List[CacheValue[K]] = field(default_factory=list)
-    table: Dict[K, V] = field(default_factory=dict)
+    values: DoublyLinkedList[Pair[K, V]] = field(default_factory=DoublyLinkedList)
+    table: Dict[K, Node[V]] = field(default_factory=dict)
 
     def get(self, key: K) -> Optional[V]:
-        value = self.table.get(key)
+        node = self.table.get(key)
 
-        if value is not None:
-            for cvalue in self.queue:
-                if cvalue.value == key:
-                    cvalue.priority += 1
-                    self.queue = list(sorted(self.queue, key=lambda x: x.priority))
+        if node is not None:
+            self._reinsert(key, node)
+            return node.value.value
 
-        return value
+        return None
+
+    def _reinsert(self, key: K, node: Node[V]) -> None:
+        if (left := node.prev_node) is not None and (right := node.next_node) is not None:
+            left.next_node = right
+            right.prev_node = left
+            self.values.prepend(Pair(key, node.value))
 
     def put(self, key: K, value: V) -> None:
-        self.queue.append(CacheValue(value=key, priority=1))
-        self.queue = list(sorted(self.queue, key=lambda x: x.priority))
-        self.table[key] = value
+        if self.size >= self.capacity:
+            self._evict()
+            self.size -=1
+
+        self.values.prepend(Pair(key, value))
+        self.table[key] = self.values.first
         self.size += 1
 
-        if self.size > self.capacity:
-            self._evict()
-
-    def _evict(self) -> CacheValue[K]:
-        cvalue = self.queue.pop(0)
-        del self.table[cvalue.value]
-
-        return cvalue
+    def _evict(self) -> None:
+        key = self.values[-1].key
+        del self.table[key]
+        del self.values[-1]
