@@ -1,7 +1,7 @@
 from typing import Generic
 
-from list.linked_list import LinkedList
-from utils import T
+from ..list import LinkedList
+from ..utils import T
 
 class LinkedStack(Generic[T]):
     def __init__(self) -> None:

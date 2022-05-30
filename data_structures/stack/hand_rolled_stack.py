@@ -1,6 +1,6 @@
 from typing import Generic
 
-from utils import T, Node
+from ..utils import T, Node
 
 
 class HandRolledStack(Generic[T]):

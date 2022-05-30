@@ -1,6 +1,6 @@
 from typing import Iterable, Iterator, Protocol
 
-from .utils import T
+from ..utils import T
 
 
 class List(Protocol[T]):

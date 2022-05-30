@@ -1,7 +1,7 @@
 import unittest
 from abc import ABC, abstractmethod
 
-from data_structures.stack.stack import Stack, LinkedStack, HandRolledStack
+from data_structures.stack import Stack, HandRolledStack, LinkedStack
 
 
 class StackTest(ABC):

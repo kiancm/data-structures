@@ -1,6 +1,6 @@
 from typing import Protocol
 
-from utils import T
+from ..utils import T
 
 
 class Stack(Protocol[T]):

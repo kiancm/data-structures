@@ -25,7 +25,7 @@ class LRUCacheTest(unittest.TestCase):
             self.cache.put(i, i)
             self.cache.get(i)
 
-        self.cache.put(self.cache.capacity + 1, self.cache.capacity + 1)
+        self.cache.put(-1, -1)
         self.assertIsNone(self.cache.get(0))
 
     def test_get_or_compute(self):
