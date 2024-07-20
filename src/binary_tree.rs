@@ -3,11 +3,19 @@ use std::cmp::Ordering;
 #[derive(Debug, PartialEq, Eq)]
 struct Node<T: Ord + Clone> {
     elem: T,
-    left: Box<BinaryTree<T>>,
-    right: Box<BinaryTree<T>>,
+    left: Option<Box<Node<T>>>,
+    right: Option<Box<Node<T>>>,
 }
 
 impl<T: Ord + Clone> Node<T> {
+    fn leaf(elem: T) -> Node<T> {
+        Node {
+            elem,
+            left: None,
+            right: None,
+        }
+    }
+
     fn find_max(&self) -> &T {
         let mut subtrees = vec![self];
         let mut max = &self.elem;
@@ -16,14 +24,59 @@ impl<T: Ord + Clone> Node<T> {
             if value > max {
                 max = value;
             }
-            if let Some(ref node) = subtree.left.0 {
+            if let Some(ref node) = subtree.left {
                 subtrees.push(node);
             }
-            if let Some(ref node) = subtree.right.0 {
+            if let Some(ref node) = subtree.right {
                 subtrees.push(node);
             }
         }
         &max
+    }
+
+    fn contains(&self, value: &T) -> bool
+    where
+        T: PartialEq,
+    {
+        &self.elem == value
+            || self.left.as_ref().is_some_and(|left| left.contains(value))
+            || self
+                .right
+                .as_ref()
+                .is_some_and(|right| right.contains(value))
+    }
+
+    fn insert(&mut self, value: T) {
+        let node_to_add = match value.cmp(&self.elem) {
+            Ordering::Less => &mut self.left,
+            Ordering::Greater | Ordering::Equal => &mut self.right,
+        };
+        match node_to_add {
+            Some(node) => {
+                node.insert(value);
+            }
+            None => {
+                self.right = Some(Box::new(Node::leaf(value)));
+            }
+        }
+    }
+
+    fn delete(&self, value: &T) {
+        match value.cmp(&self.elem) {
+            Ordering::Equal => match (self.left, self.right) {
+                (None, None) => self = None,
+                (None, node) => self = node.0.take(),
+                (node, None) => self = node.0.take(),
+                (Some(left_node), _) => {
+                    let max_value = left_node.find_max().clone();
+                    node.left.delete(&max_value);
+                    node.elem = max_value;
+                }
+            },
+            Ordering::Less => node.left.delete(value),
+            Ordering::Greater => node.right.delete(value),
+        }
+
     }
 }
 
@@ -45,25 +98,7 @@ impl<T: Ord + Clone> BinaryTree<T> {
     where
         T: PartialEq,
     {
-        match &self.0 {
-            Some(Node { elem, left, right }) => {
-                elem == value || left.contains(value) || right.contains(value)
-            }
-            None => false,
-        }
-    }
-
-    fn values(self) -> Vec<T> {
-        let mut subtrees = vec![self];
-        let mut values = Vec::new();
-        while let Some(subtree) = subtrees.pop() {
-            if let Some(Node { elem, left, right }) = subtree.0 {
-                values.push(elem);
-                subtrees.push(*left);
-                subtrees.push(*right);
-            }
-        }
-        return values;
+        self.0.as_ref().is_some_and(|node| node.contains(value))
     }
 
     pub fn insert(&mut self, value: T) {
@@ -71,37 +106,17 @@ impl<T: Ord + Clone> BinaryTree<T> {
             None => {
                 self.0 = Some(Node {
                     elem: value,
-                    left: Box::new(BinaryTree(None)),
-                    right: Box::new(BinaryTree(None)),
+                    left: None,
+                    right: None,
                 });
             }
-            Some(Node {
-                ref elem,
-                ref mut left,
-                ref mut right,
-            }) => match value.cmp(elem) {
-                Ordering::Less => left.insert(value),
-                Ordering::Equal | Ordering::Greater => right.insert(value),
-            },
+            Some(ref mut node) => node.insert(value),
         }
     }
 
     pub fn delete(&mut self, value: &T) {
         if let Some(ref mut node) = self.0 {
-            match value.cmp(&node.elem) {
-                Ordering::Equal => match (&mut *node.left, &mut *node.right) {
-                    (BinaryTree(None), BinaryTree(None)) => *self = BinaryTree(None),
-                    (BinaryTree(None), node) => self.0 = node.0.take(),
-                    (node, BinaryTree(None)) => self.0 = node.0.take(),
-                    (BinaryTree(Some(left_node)), _) => {
-                        let max_value = left_node.find_max().clone();
-                        node.left.delete(&max_value);
-                        node.elem = max_value;
-                    }
-                },
-                Ordering::Less => node.left.delete(value),
-                Ordering::Greater => node.right.delete(value),
-            }
+            node.delete(value);
         }
     }
 }
