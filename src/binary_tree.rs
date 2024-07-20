@@ -16,6 +16,12 @@ impl<T: Ord + Clone> Node<T> {
             if value > max {
                 max = value;
             }
+            if let Some(ref node) = subtree.left.0 {
+                subtrees.push(node);
+            }
+            if let Some(ref node) = subtree.right.0 {
+                subtrees.push(node);
+            }
         }
         &max
     }
@@ -145,5 +151,103 @@ mod test {
 
         assert_eq!(tree, expected);
 
+    }
+
+    #[test]
+    fn test_delete_leaf() {
+        let mut tree = BinaryTree::new();
+        tree.insert(2);
+        tree.insert(1);
+        tree.insert(3);
+
+        tree.delete(&3);
+
+        let expected = BinaryTree(Some(Node {
+            elem: 2,
+            left: Box::new(BinaryTree(Some(Node {
+                elem: 1,
+                left: Box::new(BinaryTree(None)),
+                right: Box::new(BinaryTree(None)),
+            }))),
+            right: Box::new(BinaryTree(None)),
+        }));
+
+        assert_eq!(tree, expected);
+    }
+
+    #[test]
+    fn test_delete_root() {
+        let mut tree = BinaryTree::new();
+        tree.insert(2);
+        tree.insert(1);
+        tree.insert(3);
+
+        tree.delete(&2);
+
+        let expected = BinaryTree(Some(Node {
+            elem: 1,
+            right: Box::new(BinaryTree(Some(Node {
+                elem: 3,
+                left: Box::new(BinaryTree(None)),
+                right: Box::new(BinaryTree(None)),
+            }))),
+            left: Box::new(BinaryTree(None)),
+        }));
+
+        assert_eq!(tree, expected);
+    }
+
+    #[test]
+    fn test_delete_middle() {
+        let mut tree = BinaryTree::new();
+        tree.insert(2);
+        tree.insert(1);
+        tree.insert(3);
+        tree.insert(4);
+
+        tree.delete(&3);
+
+        let expected = BinaryTree(Some(Node {
+            elem: 2,
+            left: Box::new(BinaryTree(Some(Node {
+                elem: 1,
+                left: Box::new(BinaryTree(None)),
+                right: Box::new(BinaryTree(None)),
+            }))),
+            right: Box::new(BinaryTree(Some(Node {
+                elem: 4,
+                left: Box::new(BinaryTree(None)),
+                right: Box::new(BinaryTree(None)),
+            }))),
+        }));
+
+        assert_eq!(tree, expected);
+    }
+
+    #[test]
+    fn test_left_max() {
+        let mut tree = BinaryTree::new();
+        tree.insert(3);
+        tree.insert(1);
+        tree.insert(2);
+        tree.insert(4);
+
+        tree.delete(&3);
+
+        let expected = BinaryTree(Some(Node {
+            elem: 2,
+            left: Box::new(BinaryTree(Some(Node {
+                elem: 1,
+                left: Box::new(BinaryTree(None)),
+                right: Box::new(BinaryTree(None)),
+            }))),
+            right: Box::new(BinaryTree(Some(Node {
+                elem: 4,
+                left: Box::new(BinaryTree(None)),
+                right: Box::new(BinaryTree(None)),
+            }))),
+        }));
+
+        assert_eq!(tree, expected);
     }
 }
