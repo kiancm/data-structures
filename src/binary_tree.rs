@@ -27,8 +27,14 @@ impl<T: Ord + Clone> Node<T> {
     }
 }
 
-#[derive(Debug, PartialEq, Eq, Default)]
+#[derive(Debug, PartialEq, Eq)]
 struct BinaryTree<T: Ord + Clone>(Option<Node<T>>);
+
+impl<T: Ord + Clone> Default for BinaryTree<T> {
+    fn default() -> Self {
+        BinaryTree::new()
+    }
+}
 
 impl<T: Ord + Clone> BinaryTree<T> {
     pub fn new() -> Self {
@@ -100,31 +106,29 @@ impl<T: Ord + Clone> BinaryTree<T> {
     }
 }
 
+impl<T: Ord + Clone> FromIterator<T> for BinaryTree<T>{
+    fn from_iter<I: IntoIterator<Item = T>>(iter: I) -> Self {
+        let mut tree: BinaryTree<T> = Default::default();
+        for elem in iter {
+            tree.insert(elem);
+        }
+        tree
+    }
+}
+
 #[cfg(test)]
 mod test {
     use crate::binary_tree::{BinaryTree, Node};
 
     #[test]
     fn test_contains_empty() {
-        let tree = BinaryTree(None);
+        let tree = BinaryTree::new();
         assert_eq!(false, tree.contains(&1))
     }
 
     #[test]
     fn test_contains() {
-        let tree = BinaryTree(Some(Node {
-            elem: 2,
-            left: Box::new(BinaryTree(Some(Node {
-                elem: 1,
-                left: Box::new(BinaryTree(None)),
-                right: Box::new(BinaryTree(None)),
-            }))),
-            right: Box::new(BinaryTree(Some(Node {
-                elem: 3,
-                left: Box::new(BinaryTree(None)),
-                right: Box::new(BinaryTree(None)),
-            }))),
-        }));
+        let tree = BinaryTree::from_iter([1, 2, 3]);
         assert_eq!(true, tree.contains(&1))
     }
 
@@ -155,10 +159,7 @@ mod test {
 
     #[test]
     fn test_delete_leaf() {
-        let mut tree = BinaryTree::new();
-        tree.insert(2);
-        tree.insert(1);
-        tree.insert(3);
+        let mut tree = BinaryTree::from_iter([2, 1, 3]);
 
         tree.delete(&3);
 
@@ -177,10 +178,7 @@ mod test {
 
     #[test]
     fn test_delete_root() {
-        let mut tree = BinaryTree::new();
-        tree.insert(2);
-        tree.insert(1);
-        tree.insert(3);
+        let mut tree = BinaryTree::from_iter([2, 1, 3]);
 
         tree.delete(&2);
 
@@ -199,11 +197,7 @@ mod test {
 
     #[test]
     fn test_delete_middle() {
-        let mut tree = BinaryTree::new();
-        tree.insert(2);
-        tree.insert(1);
-        tree.insert(3);
-        tree.insert(4);
+        let mut tree = BinaryTree::from_iter([2, 1, 3, 4]);
 
         tree.delete(&3);
 
@@ -225,12 +219,8 @@ mod test {
     }
 
     #[test]
-    fn test_left_max() {
-        let mut tree = BinaryTree::new();
-        tree.insert(3);
-        tree.insert(1);
-        tree.insert(2);
-        tree.insert(4);
+    fn test_delete_left_max() {
+        let mut tree = BinaryTree::from_iter([3, 1, 2, 4]);
 
         tree.delete(&3);
 
