@@ -106,7 +106,7 @@ impl<T: Ord + Clone> BinaryTree<T> {
     }
 }
 
-impl<T: Ord + Clone> FromIterator<T> for BinaryTree<T>{
+impl<T: Ord + Clone> FromIterator<T> for BinaryTree<T> {
     fn from_iter<I: IntoIterator<Item = T>>(iter: I) -> Self {
         let mut tree: BinaryTree<T> = Default::default();
         for elem in iter {
@@ -154,7 +154,6 @@ mod test {
         }));
 
         assert_eq!(tree, expected);
-
     }
 
     #[test]
