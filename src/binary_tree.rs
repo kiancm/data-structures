@@ -81,6 +81,14 @@ impl<T: Ord + Clone> BinaryTree<T> {
         BinaryTree(None)
     }
 
+    pub fn leaf(elem: T) -> Self {
+        BinaryTree(Some(Box::new(Node {
+            elem,
+            left: BinaryTree::new(),
+            right: BinaryTree::new(),
+        })))
+    }
+
     pub fn contains(&self, value: &T) -> bool
     where
         T: PartialEq,
@@ -179,11 +187,7 @@ mod test {
 
         let expected = BinaryTree(Some(Box::new(Node {
             elem: 2,
-            left: BinaryTree(Some(Box::new(Node {
-                elem: 1,
-                left: BinaryTree(None),
-                right: BinaryTree(None),
-            }))),
+            left: BinaryTree::leaf(1),
             right: BinaryTree(None),
         })));
 
@@ -198,11 +202,7 @@ mod test {
 
         let expected = BinaryTree(Some(Box::new(Node {
             elem: 1,
-            right: BinaryTree(Some(Box::new(Node {
-                elem: 3,
-                left: BinaryTree(None),
-                right: BinaryTree(None),
-            }))),
+            right: BinaryTree::leaf(3),
             left: BinaryTree(None),
         })));
 
@@ -217,16 +217,8 @@ mod test {
 
         let expected = BinaryTree(Some(Box::new(Node {
             elem: 2,
-            left: BinaryTree(Some(Box::new(Node {
-                elem: 1,
-                left: BinaryTree(None),
-                right: BinaryTree(None),
-            }))),
-            right: BinaryTree(Some(Box::new(Node {
-                elem: 4,
-                left: BinaryTree(None),
-                right: BinaryTree(None),
-            }))),
+            left: BinaryTree::leaf(1),
+            right: BinaryTree::leaf(4),
         })));
 
         assert_eq!(tree, expected);
@@ -240,16 +232,8 @@ mod test {
 
         let expected = BinaryTree(Some(Box::new(Node {
             elem: 2,
-            left: BinaryTree(Some(Box::new(Node {
-                elem: 1,
-                left: BinaryTree(None),
-                right: BinaryTree(None),
-            }))),
-            right: BinaryTree(Some(Box::new(Node {
-                elem: 4,
-                left: BinaryTree(None),
-                right: BinaryTree(None),
-            }))),
+            left: BinaryTree::leaf(1),
+            right: BinaryTree::leaf(4),
         })));
 
         assert_eq!(tree, expected);
