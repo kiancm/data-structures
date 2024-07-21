@@ -3,16 +3,16 @@ use std::cmp::Ordering;
 #[derive(Debug, PartialEq, Eq)]
 struct Node<T: Ord + Clone> {
     elem: T,
-    left: Option<Box<Node<T>>>,
-    right: Option<Box<Node<T>>>,
+    left: BinaryTree<T>,
+    right: BinaryTree<T>,
 }
 
 impl<T: Ord + Clone> Node<T> {
     fn leaf(elem: T) -> Node<T> {
         Node {
             elem,
-            left: None,
-            right: None,
+            left: BinaryTree::new(),
+            right: BinaryTree::new(),
         }
     }
 
@@ -24,10 +24,10 @@ impl<T: Ord + Clone> Node<T> {
             if value > max {
                 max = value;
             }
-            if let Some(ref node) = subtree.left {
+            if let BinaryTree(Some(ref node)) = subtree.left {
                 subtrees.push(node);
             }
-            if let Some(ref node) = subtree.right {
+            if let BinaryTree(Some(ref node)) = subtree.right {
                 subtrees.push(node);
             }
         }
@@ -39,9 +39,14 @@ impl<T: Ord + Clone> Node<T> {
         T: PartialEq,
     {
         &self.elem == value
-            || self.left.as_ref().is_some_and(|left| left.contains(value))
+            || self
+                .left
+                .0
+                .as_ref()
+                .is_some_and(|left| left.contains(value))
             || self
                 .right
+                .0
                 .as_ref()
                 .is_some_and(|right| right.contains(value))
     }
@@ -52,36 +57,18 @@ impl<T: Ord + Clone> Node<T> {
             Ordering::Greater | Ordering::Equal => &mut self.right,
         };
         match node_to_add {
-            Some(node) => {
+            BinaryTree(Some(node)) => {
                 node.insert(value);
             }
-            None => {
-                self.right = Some(Box::new(Node::leaf(value)));
+            BinaryTree(None) => {
+                *node_to_add = BinaryTree(Some(Box::new(Node::leaf(value))));
             }
         }
-    }
-
-    fn delete(&self, value: &T) {
-        match value.cmp(&self.elem) {
-            Ordering::Equal => match (self.left, self.right) {
-                (None, None) => self = None,
-                (None, node) => self = node.0.take(),
-                (node, None) => self = node.0.take(),
-                (Some(left_node), _) => {
-                    let max_value = left_node.find_max().clone();
-                    node.left.delete(&max_value);
-                    node.elem = max_value;
-                }
-            },
-            Ordering::Less => node.left.delete(value),
-            Ordering::Greater => node.right.delete(value),
-        }
-
     }
 }
 
 #[derive(Debug, PartialEq, Eq)]
-struct BinaryTree<T: Ord + Clone>(Option<Node<T>>);
+struct BinaryTree<T: Ord + Clone>(Option<Box<Node<T>>>);
 
 impl<T: Ord + Clone> Default for BinaryTree<T> {
     fn default() -> Self {
@@ -104,19 +91,32 @@ impl<T: Ord + Clone> BinaryTree<T> {
     pub fn insert(&mut self, value: T) {
         match self.0 {
             None => {
-                self.0 = Some(Node {
+                self.0 = Some(Box::new(Node {
                     elem: value,
-                    left: None,
-                    right: None,
-                });
+                    left: BinaryTree::new(),
+                    right: BinaryTree::new(),
+                }));
             }
             Some(ref mut node) => node.insert(value),
         }
     }
 
     pub fn delete(&mut self, value: &T) {
-        if let Some(ref mut node) = self.0 {
-            node.delete(value);
+        if let BinaryTree(Some(ref mut node)) = self {
+            match value.cmp(&node.elem) {
+                Ordering::Equal => match (&node.left.0, &node.right.0) {
+                    (None, None) => self.0 = None,
+                    (None, Some(_)) => self.0 = node.right.0.take(),
+                    (Some(_), None) => self.0 = node.left.0.take(),
+                    (Some(left_node), _) => {
+                        let max_value = left_node.find_max().clone();
+                        node.left.delete(&max_value);
+                        node.elem = max_value;
+                    }
+                },
+                Ordering::Less => node.left.delete(value),
+                Ordering::Greater => node.right.delete(value),
+            }
         }
     }
 }
@@ -154,19 +154,19 @@ mod test {
         tree.insert(1);
         tree.insert(3);
 
-        let expected = BinaryTree(Some(Node {
+        let expected = BinaryTree(Some(Box::new(Node {
             elem: 2,
-            left: Box::new(BinaryTree(Some(Node {
+            left: BinaryTree(Some(Box::new(Node {
                 elem: 1,
-                left: Box::new(BinaryTree(None)),
-                right: Box::new(BinaryTree(None)),
+                left: BinaryTree(None),
+                right: BinaryTree(None),
             }))),
-            right: Box::new(BinaryTree(Some(Node {
+            right: BinaryTree(Some(Box::new(Node {
                 elem: 3,
-                left: Box::new(BinaryTree(None)),
-                right: Box::new(BinaryTree(None)),
+                left: BinaryTree(None),
+                right: BinaryTree(None),
             }))),
-        }));
+        })));
 
         assert_eq!(tree, expected);
     }
@@ -177,15 +177,15 @@ mod test {
 
         tree.delete(&3);
 
-        let expected = BinaryTree(Some(Node {
+        let expected = BinaryTree(Some(Box::new(Node {
             elem: 2,
-            left: Box::new(BinaryTree(Some(Node {
+            left: BinaryTree(Some(Box::new(Node {
                 elem: 1,
-                left: Box::new(BinaryTree(None)),
-                right: Box::new(BinaryTree(None)),
+                left: BinaryTree(None),
+                right: BinaryTree(None),
             }))),
-            right: Box::new(BinaryTree(None)),
-        }));
+            right: BinaryTree(None),
+        })));
 
         assert_eq!(tree, expected);
     }
@@ -196,15 +196,15 @@ mod test {
 
         tree.delete(&2);
 
-        let expected = BinaryTree(Some(Node {
+        let expected = BinaryTree(Some(Box::new(Node {
             elem: 1,
-            right: Box::new(BinaryTree(Some(Node {
+            right: BinaryTree(Some(Box::new(Node {
                 elem: 3,
-                left: Box::new(BinaryTree(None)),
-                right: Box::new(BinaryTree(None)),
+                left: BinaryTree(None),
+                right: BinaryTree(None),
             }))),
-            left: Box::new(BinaryTree(None)),
-        }));
+            left: BinaryTree(None),
+        })));
 
         assert_eq!(tree, expected);
     }
@@ -215,19 +215,19 @@ mod test {
 
         tree.delete(&3);
 
-        let expected = BinaryTree(Some(Node {
+        let expected = BinaryTree(Some(Box::new(Node {
             elem: 2,
-            left: Box::new(BinaryTree(Some(Node {
+            left: BinaryTree(Some(Box::new(Node {
                 elem: 1,
-                left: Box::new(BinaryTree(None)),
-                right: Box::new(BinaryTree(None)),
+                left: BinaryTree(None),
+                right: BinaryTree(None),
             }))),
-            right: Box::new(BinaryTree(Some(Node {
+            right: BinaryTree(Some(Box::new(Node {
                 elem: 4,
-                left: Box::new(BinaryTree(None)),
-                right: Box::new(BinaryTree(None)),
+                left: BinaryTree(None),
+                right: BinaryTree(None),
             }))),
-        }));
+        })));
 
         assert_eq!(tree, expected);
     }
@@ -238,19 +238,19 @@ mod test {
 
         tree.delete(&3);
 
-        let expected = BinaryTree(Some(Node {
+        let expected = BinaryTree(Some(Box::new(Node {
             elem: 2,
-            left: Box::new(BinaryTree(Some(Node {
+            left: BinaryTree(Some(Box::new(Node {
                 elem: 1,
-                left: Box::new(BinaryTree(None)),
-                right: Box::new(BinaryTree(None)),
+                left: BinaryTree(None),
+                right: BinaryTree(None),
             }))),
-            right: Box::new(BinaryTree(Some(Node {
+            right: BinaryTree(Some(Box::new(Node {
                 elem: 4,
-                left: Box::new(BinaryTree(None)),
-                right: Box::new(BinaryTree(None)),
+                left: BinaryTree(None),
+                right: BinaryTree(None),
             }))),
-        }));
+        })));
 
         assert_eq!(tree, expected);
     }
