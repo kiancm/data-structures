@@ -68,7 +68,7 @@ impl<T: Ord + Clone> Node<T> {
 }
 
 #[derive(Debug, PartialEq, Eq)]
-struct BinaryTree<T: Ord + Clone>(Option<Box<Node<T>>>);
+pub struct BinaryTree<T: Ord + Clone>(Option<Box<Node<T>>>);
 
 impl<T: Ord + Clone> Default for BinaryTree<T> {
     fn default() -> Self {
@@ -166,7 +166,7 @@ mod test {
             elem: 2,
             left: BinaryTree(Some(Box::new(Node {
                 elem: 1,
-                left: BinaryTree(None),
+                left: BinaryTree::new(),
                 right: BinaryTree(None),
             }))),
             right: BinaryTree(Some(Box::new(Node {
